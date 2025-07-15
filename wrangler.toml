@@ -1,0 +1,10 @@
+name = "dashboard-iegm"
+main = "src/worker/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+d1_databases = [{ binding = "DB", database_name = "dataset-iegm", database_id = "dcb723ba-b7ee-4851-8fb4-6fe106279b01", migrations_dir = "src/db/migrations" }]
+
+[env.development]
+d1_databases = [{ binding = "DB", database_name = "dataset-iegm-dev", database_id = "dcb723ba-b7ee-4851-8fb4-6fe106279b01", migrations_dir = "src/db/migrations" }]
