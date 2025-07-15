@@ -20,15 +20,10 @@ export class DatabaseService {
                         (globalThis.location.hostname.includes('pages.dev') ||
                          globalThis.location.hostname.includes('cloudflare.com'));
 
-    // Detectar se estamos em desenvolvimento local com Wrangler
-    const isLocalWrangler = typeof globalThis !== 'undefined' &&
-                           'D1Database' in globalThis &&
-                           !isBrowser;
-
     const defaultConfig: DatabaseConfig = {
       useMockData: false,
       apiBaseUrl: isProduction
-        ? `${globalThis.location.origin}/api` // Usar API do Cloudflare Workers em produção
+        ? `${globalThis.location.origin}/api` // Usar API do Cloudflare Pages em produção
         : 'http://localhost:3001/api', // Usar API local em desenvolvimento
       useDirectD1: false
     };
@@ -43,8 +38,8 @@ export class DatabaseService {
         this.config.useDirectD1 = false;
         this.config.useMockData = false;
       } else {
-        // Em Cloudflare Workers ou desenvolvimento local com Wrangler, tentar usar D1Database
-        if (d1Database || isLocalWrangler) {
+        // Em Cloudflare Pages Functions, tentar usar D1Database
+        if (d1Database) {
           this.db = createDB(d1Database);
           if (this.db) {
             console.log('D1Database connected successfully with Drizzle');

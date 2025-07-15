@@ -4,7 +4,7 @@ import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-console.log('🚀 Iniciando desenvolvimento com D1...\n');
+console.log('🚀 Iniciando desenvolvimento com Cloudflare Pages + D1...\n');
 
 // Verificar se o wrangler está instalado
 try {
@@ -44,14 +44,14 @@ try {
   process.exit(1);
 }
 
-// Iniciar o servidor de desenvolvimento com D1
-console.log('\n🌐 Iniciando servidor de desenvolvimento com D1...');
+// Iniciar o servidor de desenvolvimento com Pages
+console.log('\n🌐 Iniciando servidor de desenvolvimento com Cloudflare Pages...');
 console.log('📝 O aplicativo estará disponível em: http://localhost:8788');
 console.log('🔗 API estará disponível em: http://localhost:8788/api');
 console.log('💡 Use Ctrl+C para parar o servidor\n');
 
 try {
-  execSync('wrangler dev --local --port 8788', { stdio: 'inherit' });
+  execSync('wrangler pages dev --local --port 8788', { stdio: 'inherit' });
 } catch (error) {
   console.error('\n❌ Erro ao iniciar servidor:', error);
   process.exit(1);

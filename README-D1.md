@@ -1,6 +1,6 @@
-# Dashboard IEGM - Integração com Cloudflare D1
+# Dashboard IEGM - Integração com Cloudflare Pages + D1
 
-Este projeto agora suporta conexão direta com Cloudflare D1 usando Drizzle ORM, tanto em produção quanto em desenvolvimento local.
+Este projeto agora suporta conexão com Cloudflare D1 usando Drizzle ORM através de Cloudflare Pages Functions.
 
 ## 🚀 Início Rápido
 
@@ -13,7 +13,7 @@ yarn install
 # 2. Configurar Wrangler (se ainda não configurado)
 wrangler login
 
-# 3. Iniciar desenvolvimento com D1
+# 3. Iniciar desenvolvimento com Pages + D1
 yarn cf:dev:d1
 ```
 
@@ -53,17 +53,15 @@ yarn cf:db:migrate-data
 
 ### Modos de Operação
 
-1. **Browser**: Usa API endpoints (fallback automático)
-2. **Cloudflare Workers**: Usa D1 diretamente com Drizzle
+1. **Browser**: Usa API endpoints (Pages Functions)
+2. **Pages Functions**: Usa D1 diretamente com Drizzle
 3. **Desenvolvimento Local**: Pode usar D1 local ou API SQLite
 
-### Detecção Automática
+### Como Funciona
 
-O sistema detecta automaticamente o ambiente:
-
-- **Browser**: Sempre usa API (não pode acessar D1 diretamente)
-- **Cloudflare Workers**: Usa D1 diretamente
-- **Desenvolvimento Local**: Usa D1 local se disponível, senão API
+- **Browser**: Sempre usa API endpoints (não pode acessar D1 diretamente)
+- **Pages Functions**: Acessa D1 diretamente usando Drizzle
+- **API Routes**: `/functions/api/[[route]].ts` gerencia todas as requisições
 
 ## 📁 Estrutura de Arquivos
 
@@ -75,10 +73,11 @@ src/
 │   └── migrations/       # Migrações Drizzle
 ├── services/
 │   ├── database/
-│   │   └── index.ts      # DatabaseService com detecção de ambiente
-│   └── iegm/            # Serviços que usam D1 ou API
-├── worker/
-│   └── index.ts         # Worker Cloudflare com D1
+│   │   └── index.ts      # DatabaseService para Pages
+│   └── iegm/            # Serviços que usam API
+├── functions/
+│   └── api/
+│       └── [[route]].ts  # API routes para Pages
 └── hooks/
     └── useDatabase.ts   # Hook para inicializar banco
 ```
@@ -87,7 +86,7 @@ src/
 
 ### Desenvolvimento
 ```bash
-yarn cf:dev:d1          # Desenvolvimento com D1 local
+yarn cf:dev:d1          # Desenvolvimento com Pages + D1
 yarn local:server       # Servidor API local
 yarn dev               # Frontend apenas
 ```
@@ -109,22 +108,21 @@ yarn cf:deploy          # Deploy para Cloudflare Pages
 ### Verificar Conexão D1
 
 ```bash
-# Health check do worker
-curl http://localhost:8788/health
+# Health check da API
+curl http://localhost:8788/api/municipios?ano=2023&tribunal=TCEMG
 ```
 
 ### Logs
 
-- **Desenvolvimento D1**: Logs aparecem no console do Wrangler
+- **Desenvolvimento Pages**: Logs aparecem no console do Wrangler
 - **Browser**: Verifique o console do navegador
 - **Produção**: Logs aparecem no Cloudflare Dashboard
 
 ### Mensagens de Status
 
 No console você verá:
-- ✅ "D1Database connected successfully with Drizzle"
-- ℹ️ "Browser environment detected, using API endpoints"
-- ⚠️ "D1Database not available, using API endpoints"
+- ✅ "D1Database connected successfully with Drizzle" (nas Functions)
+- ℹ️ "Browser environment detected, using API endpoints" (no browser)
 
 ## 🚨 Troubleshooting
 
@@ -140,10 +138,17 @@ No console você verá:
 2. Certifique-se de que o `DatabaseService` está sendo inicializado
 3. Verifique se o D1 está configurado corretamente
 
-### Performance Lenta
+### Erro: "Unexpected token '<'"
 
-- Use `yarn cf:dev:d1` para desenvolvimento local
-- Em produção, a conexão direta com D1 é mais rápida
+Este erro indica que a API está retornando HTML em vez de JSON. Isso pode acontecer se:
+1. As Pages Functions não estão configuradas corretamente
+2. O D1 não está acessível
+3. Há um erro na rota da API
+
+**Solução:**
+- Verifique se o arquivo `functions/api/[[route]].ts` existe
+- Certifique-se de que o D1 está configurado no `wrangler.toml`
+- Teste a API localmente primeiro
 
 ## 📝 Configuração
 
@@ -151,7 +156,8 @@ No console você verá:
 
 ```toml
 name = "dashboard-iegm"
-main = "src/worker/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 d1_databases = [{ binding = "DB", database_name = "dataset-iegm", database_id = "..." }]
@@ -160,14 +166,21 @@ d1_databases = [{ binding = "DB", database_name = "dataset-iegm", database_id = 
 d1_databases = [{ binding = "DB", database_name = "dataset-iegm-dev", database_id = "..." }]
 ```
 
-### Variáveis de Ambiente
+### API Routes
 
-- `DATABASE_URL`: URL do banco local (desenvolvimento)
-- `D1_DATABASE_ID`: ID do banco D1 (produção)
+As rotas da API estão em `functions/api/[[route]].ts`:
+- `/api/municipios` - Listar municípios
+- `/api/ranking` - Ranking de municípios
+- `/api/estatisticas` - Estatísticas gerais
+- `/api/faixas-distribuicao` - Faixas de distribuição
+- `/api/analise-dimensoes` - Análise de dimensões
+- `/api/respostas-detalhadas` - Respostas detalhadas
+- `/api/comparativo-ano-anterior` - Comparativo anual
 
 ## 🔗 Links Úteis
 
 - [Documentação Completa](docs/D1-INTEGRATION.md)
+- [Cloudflare Pages](https://developers.cloudflare.com/pages/)
 - [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - [Drizzle ORM](https://orm.drizzle.team/)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
@@ -175,6 +188,6 @@ d1_databases = [{ binding = "DB", database_name = "dataset-iegm-dev", database_i
 ## 🤝 Contribuindo
 
 1. Use `yarn cf:dev:d1` para desenvolvimento local
-2. Teste tanto com D1 quanto com API
+2. Teste as rotas da API antes de fazer deploy
 3. Verifique se os logs indicam o modo correto de operação
 4. Documente mudanças na integração com D1 
