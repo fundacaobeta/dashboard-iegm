@@ -13,11 +13,17 @@ dataset/
 dataset-backup2/
 public/dataset/
 
+# Large CSV files specifically
+*.csv
+!small-*.csv
+!sample-*.csv
+
 # SQLite and database files
 *.db
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+local.db
 
 # Wrangler D1 state
 .wrangler/state/
