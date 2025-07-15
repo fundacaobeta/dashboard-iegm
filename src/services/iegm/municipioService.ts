@@ -26,7 +26,7 @@ export class MunicipioService {
   // ============================================================================
 
   async getMunicipios(query: MunicipioQuery): Promise<Municipio[]> {
-    if (this.db.isMockData()) {
+    if (!this.db.isDirectD1()) {
       return this.getMunicipiosFromAPI(query);
     }
 
@@ -91,7 +91,7 @@ export class MunicipioService {
   }
 
   async getMunicipioByNome(nome: string, ano: number): Promise<Municipio | null> {
-    if (this.db.isMockData()) {
+    if (!this.db.isDirectD1()) {
       return this.getMunicipioByNomeFromAPI(nome, ano);
     }
 
@@ -143,7 +143,7 @@ export class MunicipioService {
   }
 
   async getRanking(query: RankingQuery): Promise<RankingItem[]> {
-    if (this.db.isMockData()) {
+    if (!this.db.isDirectD1()) {
       return this.getRankingFromAPI(query);
     }
 
@@ -185,7 +185,7 @@ export class MunicipioService {
   }
 
   async getEstatisticas(query: EstatisticasQuery): Promise<EstatisticasGerais> {
-    if (this.db.isMockData()) {
+    if (!this.db.isDirectD1()) {
       return this.getEstatisticasFromAPI(query);
     }
 
@@ -236,7 +236,7 @@ export class MunicipioService {
   }
 
   async getFaixasDistribuicao(ano: number): Promise<FaixaDistribuicao[]> {
-    if (this.db.isMockData()) {
+    if (!this.db.isDirectD1()) {
       return this.getFaixasDistribuicaoFromAPI(ano);
     }
 

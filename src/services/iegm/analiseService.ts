@@ -35,7 +35,7 @@ export class AnaliseService {
   // ============================================================================
 
   async getDimensaoAnalise(municipio: string, ano: number): Promise<DimensaoAnalise[]> {
-    if (this.db.isMockData()) {
+    if (!this.db.isDirectD1()) {
       return this.getDimensaoAnaliseFromAPI(municipio, ano);
     }
 
@@ -129,7 +129,7 @@ export class AnaliseService {
   // ============================================================================
 
   async getRespostasDetalhadas(query: RespostasQuery): Promise<RespostaDetalhada[]> {
-    if (this.db.isMockData()) {
+    if (!this.db.isDirectD1()) {
       return this.getRespostasDetalhadasFromAPI(query);
     }
 
@@ -277,7 +277,7 @@ export class AnaliseService {
   // ============================================================================
 
   async getComparativoAnoAnterior(municipio: string, anoAtual: number): Promise<ComparativoAnoAnterior> {
-    if (this.db.isMockData()) {
+    if (!this.db.isDirectD1()) {
       return this.getComparativoAnoAnteriorFromAPI(municipio, anoAtual);
     }
 

@@ -26,6 +26,7 @@
     "data:convert-utf8": "tsx scripts/convert-to-utf8.ts",
     "# Cloudflare Commands": "",
     "cf:dev": "wrangler dev",
+    "cf:dev:d1": "tsx scripts/dev-with-d1.ts",
     "cf:deploy": "wrangler deploy",
     "cf:db:create": "wrangler d1 create iegm-dashboard",
     "cf:db:migrate": "wrangler d1 migrations apply iegm-dashboard",

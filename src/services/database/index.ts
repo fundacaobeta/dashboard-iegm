@@ -1,9 +1,9 @@
-import { drizzle } from 'drizzle-orm/d1';
 import { createDB } from '../../db';
 
 export interface DatabaseConfig {
   useMockData: boolean;
   apiBaseUrl: string;
+  useDirectD1: boolean;
 }
 
 export class DatabaseService {
@@ -11,25 +11,60 @@ export class DatabaseService {
   private config: DatabaseConfig;
 
   constructor(d1Database?: D1Database, config?: Partial<DatabaseConfig>) {
+    // Detectar se estamos no browser
+    const isBrowser = typeof window !== 'undefined';
+
+    // Detectar se estamos em produção (Cloudflare Pages)
+    const isProduction = typeof globalThis !== 'undefined' &&
+                        'location' in globalThis &&
+                        (globalThis.location.hostname.includes('pages.dev') ||
+                         globalThis.location.hostname.includes('cloudflare.com'));
+
+    // Detectar se estamos em desenvolvimento local com Wrangler
+    const isLocalWrangler = typeof globalThis !== 'undefined' &&
+                           'D1Database' in globalThis &&
+                           !isBrowser;
+
     const defaultConfig: DatabaseConfig = {
       useMockData: false,
-      apiBaseUrl: 'http://localhost:3001/api'
+      apiBaseUrl: isProduction
+        ? `${globalThis.location.origin}/api` // Usar API do Cloudflare Workers em produção
+        : 'http://localhost:3001/api', // Usar API local em desenvolvimento
+      useDirectD1: false
     };
 
     this.config = { ...defaultConfig, ...config };
 
     try {
-      this.db = createDB(d1Database);
-      if (!this.db) {
-        console.warn('Banco de dados não disponível, usando API local');
-        this.config.useMockData = true;
-      } else {
-        console.log('Banco de dados conectado com sucesso');
+      // Em browser, sempre usar API (não pode acessar D1Database diretamente)
+      if (isBrowser) {
+        this.db = null;
+        console.log('Browser environment detected, using API endpoints');
+        this.config.useDirectD1 = false;
         this.config.useMockData = false;
+      } else {
+        // Em Cloudflare Workers ou desenvolvimento local com Wrangler, tentar usar D1Database
+        if (d1Database || isLocalWrangler) {
+          this.db = createDB(d1Database);
+          if (this.db) {
+            console.log('D1Database connected successfully with Drizzle');
+            this.config.useDirectD1 = true;
+            this.config.useMockData = false;
+          } else {
+            console.warn('D1Database not available, using API endpoints');
+            this.config.useDirectD1 = false;
+            this.config.useMockData = false;
+          }
+        } else {
+          console.log('No D1Database provided, using API endpoints');
+          this.config.useDirectD1 = false;
+          this.config.useMockData = false;
+        }
       }
     } catch (error) {
-      console.error('Erro ao inicializar banco:', error);
-      this.config.useMockData = true;
+      console.error('Error initializing database:', error);
+      this.config.useDirectD1 = false;
+      this.config.useMockData = false;
     }
   }
 
@@ -39,6 +74,10 @@ export class DatabaseService {
 
   isMockData() {
     return this.config.useMockData;
+  }
+
+  isDirectD1() {
+    return this.config.useDirectD1;
   }
 
   getApiBaseUrl() {
@@ -53,4 +92,3 @@ export class DatabaseService {
 export const createDatabaseService = (d1Database?: D1Database, config?: Partial<DatabaseConfig>) => {
   return new DatabaseService(d1Database, config);
 };
- 
