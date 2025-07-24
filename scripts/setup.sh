@@ -86,6 +86,7 @@ configurar_ambiente() {
         log_info "Criando .env.example..."
         cat > .env.example << EOF
 # Configuração do Dashboard IEGM
+# Repositório: https://github.com/fundacaobeta/dashboard-iegm
 NODE_ENV=development
 DATABASE_URL=file:./local.db
 API_BASE_URL=http://localhost:3001/api
@@ -115,7 +116,7 @@ main() {
     echo "   yarn cf:dev:d1        # Iniciar com D1"
     echo "   yarn test:unit        # Rodar testes"
     echo ""
-    echo "📖 Consulte o README.md para mais informações"
+    echo "📖 Consulte o README.md ou https://github.com/fundacaobeta/dashboard-iegm para mais informações"
 }
 
 main "$@"

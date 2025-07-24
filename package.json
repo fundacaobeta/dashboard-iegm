@@ -14,20 +14,16 @@
     "d1",
     "drizzle"
   ],
-  "author": {
-    "name": "Seu Nome",
-    "email": "seu-email@exemplo.com",
-    "url": "https://github.com/seu-usuario"
-  },
+  "author": "Fundação Beta(https://github.com/fundacaobeta)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/seu-usuario/dashboard-iegm.git"
+    "url": "https://github.com/fundacaobeta/dashboard-iegm.git"
   },
   "bugs": {
-    "url": "https://github.com/seu-usuario/dashboard-iegm/issues"
+    "url": "https://github.com/fundacaobeta/dashboard-iegm/issues"
   },
-  "homepage": "https://github.com/seu-usuario/dashboard-iegm#readme",
+  "homepage": "https://github.com/fundacaobeta/dashboard-iegm#readme",
   "private": true,
   "type": "module",
   "engines": {
